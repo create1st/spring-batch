@@ -30,7 +30,7 @@ import java.util.function.Predicate;
  *
  * @param <T>
  */
-public class FilterItemReaderAdapter<T> implements ItemReader<T>, ItemStream {
+public class FilterItemReaderAdapter<T> implements ItemStreamReader<T> {
 
     private final ItemStreamReader<T> reader;
 

@@ -31,16 +31,20 @@ import com.create.model.enums.TicketType;
 import com.create.repository.TicketRepository;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.DefaultBatchConfigurer;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
+import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.RepositoryItemWriter;
 import org.springframework.batch.item.support.CompositeItemProcessor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,20 +60,30 @@ import static com.create.function.TicketPredicate.hasType;
 @EnableBatchProcessing
 public class BatchConfiguration {
 
+    @Configuration
+    static class MapBatchConfigurer extends DefaultBatchConfigurer {
+        @Override
+        protected JobRepository createJobRepository() throws Exception {
+            MapJobRepositoryFactoryBean factory = new MapJobRepositoryFactoryBean();
+            factory.afterPropertiesSet();
+            return factory.getObject();
+        }
+    }
+
     @Bean
     public TicketReaderFactory ticketReaderFactory() {
         return new TicketReaderFactory();
     }
 
+
     @Bean
-    @Autowired
-    public ItemReader<Ticket> ticketReader(final TicketReaderFactory ticketReaderFactory,
-                                           final @Value("${ticket.file}") Resource tickets) {
-        return new FilterItemReaderAdapter<>(ticketReaderFactory.createReader(tickets), TicketPredicate.hasTodayDate());
+    @StepScope
+    public ItemStreamReader<Ticket> ticketReader(final TicketReaderFactory ticketReaderFactory,
+                                                 final @Value("file:#{jobParameters['input.file.name']}") Resource resource) {
+        return new FilterItemReaderAdapter<>(ticketReaderFactory.createReader(resource), TicketPredicate.hasTodayDate());
     }
 
     @Bean
-    @Autowired
     public ItemWriter<Ticket> ticketWriter(final TicketRepository repository) {
         final RepositoryItemWriter<Ticket> writer = new RepositoryItemWriter<>();
         writer.setRepository(repository);
@@ -88,7 +102,6 @@ public class BatchConfiguration {
     }
 
     @Bean
-    @Autowired
     public ItemProcessor<Ticket, Ticket> importTicketProcessor(final TicketRepository ticketRepository,
                                                                final @Value("${ticket.metrics.count}") String countTicketType,
                                                                final TicketCounterUpdater ticketCounterUpdater,
@@ -104,7 +117,6 @@ public class BatchConfiguration {
     }
 
     @Bean
-    @Autowired
     public TicketImportJobExecutionListener ticketJobExecutionListener(final TicketCounterUpdater ticketCounterUpdater,
                                                                        final InternalTicketLatestCountUpdater internalTicketLatestCountUpdater) {
         final List<MetricProvider> metrics = Stream.of(
@@ -115,7 +127,6 @@ public class BatchConfiguration {
     }
 
     @Bean
-    @Autowired
     public Job importTicketsJob(final JobBuilderFactory jobs,
                                 final Step importTicketStep,
                                 final TicketImportJobExecutionListener ticketImportJobExecutionListener) {
@@ -128,7 +139,6 @@ public class BatchConfiguration {
     }
 
     @Bean
-    @Autowired
     public Step importTicketStep(final StepBuilderFactory stepBuilderFactory,
                                  final @Value("${ticket.chunk.size}") int chunkSize,
                                  final ItemReader<Ticket> ticketReader,

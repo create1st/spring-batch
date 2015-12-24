@@ -1,6 +1,12 @@
 ticket:
   file: classpath:/tickets.csv
   chunk.size: 1
+  poller:
+    cron: '*/10 * * * * *'
+    path: 'c:\\temp'
+    fileMask: '*.csv'
+  job:
+    parameter: 'input.file.name'
   metrics:
     count: EXTERNAL
 server:
@@ -9,6 +15,9 @@ management:
   port: 9001
   address: 127.0.0.1
 spring:
+  batch:
+    job:
+      enabled: false
   jpa:
     show-sql: true
     generate-ddl: true
@@ -20,3 +29,8 @@ spring:
     username: sa
     password: sa
     driverClassName: org.h2.Driver
+#  jms:
+#    jndi-name: java:/jms/ConnectionFactory
+  activemq:
+    in-memory: true
+    broker-url: tcp://localhost:61616

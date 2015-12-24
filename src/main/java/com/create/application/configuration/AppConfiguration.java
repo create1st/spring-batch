@@ -15,22 +15,15 @@
  *
  */
 
-package com.create.application;
+package com.create.application.configuration;
 
-import com.create.application.configuration.AppConfiguration;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jms.JmsAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 
-@SpringBootApplication
-@ComponentScan(basePackages = {
-        "com.create.application"
+@Import({
+        JpaConfiguration.class,
+        JmsConfiguration.class,
+        BatchConfiguration.class,
+        IntegrationConfiguration.class
 })
-@Import(AppConfiguration.class)
-public class Application {
-    public static void main(final String... args) {
-        SpringApplication.run(Application.class, args);
-    }
+public class AppConfiguration {
 }
