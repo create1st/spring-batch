@@ -3,10 +3,10 @@
 This is simply DEMO app to demonstrate Spring-Batch processing. It is monitoring C:\Temp directory for *.CVS files containing "Ticket" data and start processing when new file is detected.
 
 ##Ticket file format
-'''
+```
 Ticket_0,20-12-2015,Test ticket,INTERNAL
 Ticket_1,20-12-2015,Test ticket,EXTERNAL
-'''
+```
 
 ##Remarks
 - The date in ticket file has to match current date. Otherwise the line is considered as obsolete
