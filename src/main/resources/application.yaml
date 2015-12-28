@@ -9,6 +9,7 @@ ticket:
     parameter: 'input.file.name'
   metrics:
     count: EXTERNAL
+  queue: 'jms/ticket'
 server:
   port: 8080
 management:
@@ -29,8 +30,6 @@ spring:
     username: sa
     password: sa
     driverClassName: org.h2.Driver
-#  jms:
-#    jndi-name: java:/jms/ConnectionFactory
   activemq:
     in-memory: true
     broker-url: tcp://localhost:61616

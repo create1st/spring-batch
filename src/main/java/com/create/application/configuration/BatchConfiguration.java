@@ -39,16 +39,23 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.repository.support.MapJobRepositoryFactoryBean;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemStreamReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.data.RepositoryItemWriter;
+import org.springframework.batch.item.jms.JmsItemWriter;
 import org.springframework.batch.item.support.CompositeItemProcessor;
+import org.springframework.batch.item.support.CompositeItemWriter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,6 +78,12 @@ public class BatchConfiguration {
     }
 
     @Bean
+    @Qualifier("jpaTransactionManagerForBatch")
+    public PlatformTransactionManager jpaTransactionManager() {
+        return new JpaTransactionManager();
+    }
+
+    @Bean
     public TicketReaderFactory ticketReaderFactory() {
         return new TicketReaderFactory();
     }
@@ -84,10 +97,19 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public ItemWriter<Ticket> ticketWriter(final TicketRepository repository) {
-        final RepositoryItemWriter<Ticket> writer = new RepositoryItemWriter<>();
-        writer.setRepository(repository);
-        writer.setMethodName("saveAndFlush");
+    public ItemWriter<Ticket> ticketWriter(final TicketRepository repository,
+                                           final JmsTemplate jmsTemplate) {
+        final CompositeItemWriter<Ticket> writer = new CompositeItemWriter<>();
+        final RepositoryItemWriter<Ticket> repositoryItemWriter = new RepositoryItemWriter<>();
+        repositoryItemWriter.setRepository(repository);
+        repositoryItemWriter.setMethodName("saveAndFlush");
+        final JmsItemWriter<Ticket> jmsItemWriter = new JmsItemWriter();
+        jmsItemWriter.setJmsTemplate(jmsTemplate);
+        final List<ItemWriter<? super Ticket>> delegates = Stream.of(
+                repositoryItemWriter,
+                jmsItemWriter)
+                .collect(Collectors.toList());
+        writer.setDelegates(delegates);
         return writer;
     }
 
@@ -140,6 +162,8 @@ public class BatchConfiguration {
 
     @Bean
     public Step importTicketStep(final StepBuilderFactory stepBuilderFactory,
+                                 @Qualifier("jpaTransactionManagerForBatch")
+                                 final PlatformTransactionManager jpaTransactionManager,
                                  final @Value("${ticket.chunk.size}") int chunkSize,
                                  final ItemReader<Ticket> ticketReader,
                                  final ItemWriter<Ticket> ticketWriter,
@@ -149,6 +173,7 @@ public class BatchConfiguration {
                 .reader(ticketReader)
                 .processor(importTicketProcessor)
                 .writer(ticketWriter)
+                .transactionManager(jpaTransactionManager)
                 .build();
     }
 }

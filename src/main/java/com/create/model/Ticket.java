@@ -89,7 +89,7 @@ public class Ticket implements Serializable {
     @Override
     public String toString() {
         return "Ticket{" +
-                ", id=" + id +
+                "id=" + id +
                 ", tag='" + tag + '\'' +
                 ", date=" + date +
                 ", content=" + content +

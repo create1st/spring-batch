@@ -21,21 +21,16 @@ import org.apache.activemq.broker.BrokerService;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnJndi;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.jms.JmsProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jms.annotation.EnableJms;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.destination.DestinationResolver;
 
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
-import javax.jms.Queue;
 
 @Configuration
 @EnableJms
@@ -55,8 +50,8 @@ public class JmsConfiguration {
     }
 
     @Bean
-    public Destination destination() {
-        return new ActiveMQQueue("jms/ticket");
+    public Destination destination(@Value("${ticket.queue}") final String queueName) {
+        return new ActiveMQQueue(queueName);
     }
 
     @Bean

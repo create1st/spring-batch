@@ -23,22 +23,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
-
+/**
+ * This is Ticket listener to simulate external tool receiving processed tickets.
+ */
 @Component
 public class TicketListener {
     private static final Logger log = LoggerFactory.getLogger(TicketListener.class);
 
-    @JmsListener(destination = "jms/ticket" )
+    @JmsListener(destination = "${ticket.queue}" )
     public void onNewTicket(final Ticket ticket) {
         log.debug("onNewTicket : {}", ticket);
-        //    public JobLaunchRequest toRequest(Message<File> message) {
-//        JobParametersBuilder jobParametersBuilder =
-//                new JobParametersBuilder();
-//
-//        jobParametersBuilder.addString(fileParameterName,
-//                message.getPayload().getAbsolutePath());
-//
-//        return new JobLaunchRequest(job, jobParametersBuilder.toJobParameters());
-//    }
     }
 }
