@@ -17,14 +17,17 @@
 
 package com.create.application.configuration;
 
-import org.springframework.context.annotation.Import;
+import org.h2.server.web.WebServlet;
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@Import({
-        JpaConfiguration.class,
-        JmsConfiguration.class,
-        BatchConfiguration.class,
-        IntegrationConfiguration.class,
-        ServletConfiguration.class
-})
-public class AppConfiguration {
+@Configuration
+public class ServletConfiguration {
+    @Bean
+    public ServletRegistrationBean h2servletRegistration() {
+        ServletRegistrationBean registration = new ServletRegistrationBean(new WebServlet());
+        registration.addUrlMappings("/h2-console/*");
+        return registration;
+    }
 }
