@@ -1,3 +1,9 @@
+info:
+  build:
+    artifact: "@project.artifactId@"
+    name: "@project.name@"
+    description: "@project.description@"
+    version: "@project.version@"
 ticket:
   file: classpath:/tickets.csv
   chunk.size: 1
@@ -13,8 +19,14 @@ ticket:
 server:
   port: 8080
 management:
-  port: 9001
+  port: 8081
   address: 127.0.0.1
+  security:
+    enabled: true
+    user:
+      name: admin
+      password: secret
+    role: SUPERUSER
 spring:
   batch:
     job:

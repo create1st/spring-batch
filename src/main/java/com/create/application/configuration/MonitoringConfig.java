@@ -17,15 +17,21 @@
 
 package com.create.application.configuration;
 
-import org.springframework.context.annotation.Import;
+import com.codahale.metrics.JmxReporter;
+import com.codahale.metrics.MetricRegistry;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@Import({
-        JpaConfiguration.class,
-        JmsConfiguration.class,
-        BatchConfiguration.class,
-        IntegrationConfiguration.class,
-        ServletConfiguration.class,
-        MonitoringConfig.class
-})
-public class AppConfiguration {
+@Configuration
+public class MonitoringConfig {
+    @Autowired
+    private MetricRegistry registry;
+
+    @Bean
+    public JmxReporter jmxReporter() {
+        JmxReporter reporter = JmxReporter.forRegistry(registry).build();
+        reporter.start();
+        return reporter;
+    }
 }
