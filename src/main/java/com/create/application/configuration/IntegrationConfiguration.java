@@ -38,6 +38,7 @@ import org.springframework.integration.scheduling.PollerMetadata;
 import org.springframework.scheduling.support.PeriodicTrigger;
 
 import java.io.File;
+import java.time.Clock;
 
 @Configuration
 @EnableIntegration
@@ -45,6 +46,11 @@ import java.io.File;
         "com.create.batch.integration"
 })
 public class IntegrationConfiguration {
+
+    @Bean
+    public Clock clock() {
+        return Clock.systemDefaultZone();
+    }
 
     @Bean(name = PollerMetadata.DEFAULT_POLLER)
     public PollerMetadata defaultPoller() {

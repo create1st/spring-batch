@@ -30,6 +30,7 @@ import org.springframework.messaging.Message;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
+import java.time.Clock;
 import java.time.Instant;
 
 /**
@@ -38,21 +39,23 @@ import java.time.Instant;
 @Component
 public class FileMessageToJobRequest {
     private static final Logger log = LoggerFactory.getLogger(FileMessageToJobRequest.class);
-    private static final String TIMESTAMP_PARAMETER = "timestamp";
+    public static final String TIMESTAMP_PARAMETER = "timestamp";
 
     private final Job job;
+    private final Clock clock;
     private final String jobParameter;
 
     @Autowired
-    public FileMessageToJobRequest(final Job job, @Value("${ticket.job.parameter}") final String jobParameter) {
+    public FileMessageToJobRequest(final Job job, final Clock clock, @Value("${ticket.job.parameter}") final String jobParameter) {
         this.job = job;
+        this.clock = clock;
         this.jobParameter = jobParameter;
     }
 
     @Transformer(inputChannel = "inboundFileChannel", outputChannel = "outboundJobRequestChannel")
     public JobLaunchRequest toRequest(final Message<File> message) {
         log.debug("toRequest : {}", message);
-        final Instant timestamp = Instant.now();
+        final Instant timestamp = clock.instant();
         final JobParameters jobParameters =
                 new JobParametersBuilder()
                         .addString(jobParameter, message.getPayload().getAbsolutePath())

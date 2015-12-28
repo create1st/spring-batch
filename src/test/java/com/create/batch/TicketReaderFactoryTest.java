@@ -29,6 +29,7 @@ import org.springframework.core.io.ClassPathResource;
 import java.sql.Date;
 import java.time.LocalDate;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -58,9 +59,9 @@ public class TicketReaderFactoryTest {
 
         // then
         assertThat(ticket, notNullValue());
-        assertEquals("Ticket_0", ticket.getTag());
-        assertEquals(Date.valueOf(date), ticket.getDate());
-        assertEquals("Test ticket", ticket.getContent());
+        assertThat(ticket.getTag(), equalTo("Ticket_0"));
+        assertThat(ticket.getDate(), equalTo(Date.valueOf(date)));
+        assertThat(ticket.getContent(), equalTo("Test ticket"));
     }
 
     @Test(expected = FlatFileParseException.class)
