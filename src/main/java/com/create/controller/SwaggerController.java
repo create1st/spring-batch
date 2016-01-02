@@ -15,19 +15,17 @@
  *
  */
 
-package com.create.application.configuration;
+package com.create.controller;
 
-import org.springframework.context.annotation.Import;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-@Import({
-        JpaConfiguration.class,
-        JmsConfiguration.class,
-        BatchConfiguration.class,
-        IntegrationConfiguration.class,
-        WebConfiguration.class,
-        SecurityConfiguration.class,
-        MonitoringConfig.class,
-        SwaggerConfiguration.class
-})
-public class AppConfiguration {
+@Controller
+public class SwaggerController {
+    public static final String SWAGGER_START_PAGE = "redirect:/swagger-ui.html";
+
+    @RequestMapping(value = "/swagger")
+    public String index() {
+        return SWAGGER_START_PAGE;
+    }
 }

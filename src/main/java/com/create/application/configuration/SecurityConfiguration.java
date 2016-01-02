@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Sebastian Gil.
+ * Copyright 2016 Sebastian Gil.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,18 @@
 
 package com.create.application.configuration;
 
-import org.h2.server.web.WebServlet;
-import org.springframework.boot.context.embedded.ServletRegistrationBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
 @Configuration
-public class ServletConfiguration {
-    @Bean
-    public ServletRegistrationBean h2servletRegistration() {
-        ServletRegistrationBean registration = new ServletRegistrationBean(new WebServlet());
-        registration.addUrlMappings("/h2-console/*");
-        return registration;
+public class SecurityConfiguration {
+
+    @Configuration
+    public static class HttpWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(final HttpSecurity http) throws Exception {
+            http.authorizeRequests().antMatchers("/").permitAll();
+        }
     }
 }

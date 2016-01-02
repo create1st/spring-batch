@@ -17,21 +17,29 @@
 
 package com.create.application.configuration;
 
-import com.codahale.metrics.JmxReporter;
-import com.codahale.metrics.MetricRegistry;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.h2.server.web.WebServlet;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class MonitoringConfig {
-    @Autowired
-    private MetricRegistry registry;
+@ComponentScan({
+        "com.create.controller"
+})
+public class WebConfiguration {
+    @Value("${spring.h2.console.path}")
+    private String h2ConsoleContextPath;
 
     @Bean
-    public JmxReporter jmxReporter() {
-        final JmxReporter reporter = JmxReporter.forRegistry(registry).build();
-        reporter.start();
-        return reporter;
+    public ServletRegistrationBean h2servletRegistration() {
+        final ServletRegistrationBean registration = new ServletRegistrationBean(new WebServlet());
+        registration.addUrlMappings(h2ConsoleMappings());
+        return registration;
+    }
+
+    private String h2ConsoleMappings() {
+        return h2ConsoleContextPath + "/*";
     }
 }
